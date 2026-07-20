@@ -31,129 +31,24 @@ ROOT = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = ROOT / "../data/processed"
 center_bounds = {"lat_min": 44.82, "lat_max": 44.86, "lon_min": -0.57, "lon_max": -0.53}
 
-@st.cache_data(ttl=3600)
 def load_data():
+    df_hab = pd.read_parquet(PROCESSED_DIR / "habitants/habitants.parquet")
+    df_res = pd.read_csv(PROCESSED_DIR / "resultats/resultats_glouton.csv")
+    df_a = pd.read_parquet(PROCESSED_DIR / "matrices/a_ijc.parquet")
+    df_e = pd.read_parquet(PROCESSED_DIR / "emplacements/emplacements_final.parquet")[["id", "lon", "lat"]].rename(columns={"id": "id_i"})
 
-    # ---------------------
-    # Résultats optimisation
-    # ---------------------
+    # Ajout des coordonnées manquantes
+    df_res = df_res.merge(df_e, on="id_i", how="left")
 
-    df_res = pd.read_csv(
-        PROCESSED_DIR / "resultats/resultats_glouton.csv",
-        usecols=[
-            "id_i",
-            "id_j",
-            "surface_m2",
-            "prix",
-            "categorie_y"
-        ]
-    )
-
-
-    # coordonnées installations
-
-    df_e = pd.read_parquet(
-        PROCESSED_DIR / "emplacements/emplacements_final.parquet",
-        columns=[
-            "id",
-            "lon",
-            "lat"
-        ]
-    )
-
-    df_e = df_e.rename(
-        columns={"id":"id_i"}
-    )
-
-
-    df_res = df_res.merge(
-        df_e,
-        on="id_i",
-        how="left"
-    )
-
-
-    couples = df_res[
-        ["id_i","id_j"]
-    ].drop_duplicates()
-
-
-
-    # ---------------------
-    # Habitants
-    # ---------------------
-
-    df_hab = pd.read_parquet(
-        PROCESSED_DIR / "habitants/habitants.parquet",
-        columns=[
-            "id",
-            "nb_habitants",
-            "classe",
-            "lat",
-            "lon"
-        ]
-    )
-
-
+    # Filtrage zone centre
     df_hab = df_hab[
-        df_hab["lat"].between(
-            center_bounds["lat_min"],
-            center_bounds["lat_max"]
-        )
-        &
-        df_hab["lon"].between(
-            center_bounds["lon_min"],
-            center_bounds["lon_max"]
-        )
+        (df_hab["lat"].between(center_bounds["lat_min"], center_bounds["lat_max"])) &
+        (df_hab["lon"].between(center_bounds["lon_min"], center_bounds["lon_max"]))
     ]
 
-
-    df_hab = df_hab.set_index("id")
-
-
-
-    # ---------------------
-    # Matrice couverture
-    # ---------------------
-
-    df_a = pd.read_parquet(
-        PROCESSED_DIR / "matrices/a_ijc.parquet",
-        columns=[
-            "id_i",
-            "id_j",
-            "id_c"
-        ]
-    )
-
-
-    # réduction immédiate
-
-    df_a = df_a.merge(
-        couples,
-        on=[
-            "id_i",
-            "id_j"
-        ],
-        how="inner"
-    )
-
-
-    # garder uniquement habitants utiles
-
-    df_a = df_a[
-        df_a["id_c"].isin(
-            df_hab.index
-        )
-    ]
-
-
-    df_a = df_a.set_index(
-        [
-            "id_i",
-            "id_j"
-        ]
-    )
-
+    df_res["key"] = df_res["id_i"].astype(str) + "_" + df_res["id_j"].astype(str)
+    df_a["key"] = df_a["id_i"].astype(str) + "_" + df_a["id_j"].astype(str)
+    df_a = df_a[df_a["key"].isin(df_res["key"])]
 
     return df_res, df_a, df_hab
 
@@ -333,18 +228,6 @@ def couleur_vulnerabilite(classe):
 
 df_covered_habs = df_covered_habs.copy()
 df_covered_habs["color"] = df_covered_habs["classe"].apply(couleur_vulnerabilite)
-
-MAX_POINTS = 3000
-
-if len(df_covered_habs) > MAX_POINTS:
-    df_covered_habs = (
-        df_covered_habs
-        .sample(MAX_POINTS, random_state=42)
-    )
-
-    st.warning(
-        f"Carte simplifiée : affichage limité à {MAX_POINTS} secteurs."
-    )
 
 layer_install = pdk.Layer(
     "ScatterplotLayer",
