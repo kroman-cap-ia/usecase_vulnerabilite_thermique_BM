@@ -1,4 +1,3 @@
-data/processed/
 venv/
 .venv/
 __pycache__/
