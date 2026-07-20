@@ -32,10 +32,26 @@ PROCESSED_DIR = ROOT / "../data/processed"
 center_bounds = {"lat_min": 44.82, "lat_max": 44.86, "lon_min": -0.57, "lon_max": -0.53}
 
 def load_data():
+    
     df_hab = pd.read_parquet(PROCESSED_DIR / "habitants/habitants.parquet")
     df_res = pd.read_csv(PROCESSED_DIR / "resultats/resultats_glouton.csv")
     df_a = pd.read_parquet(PROCESSED_DIR / "matrices/a_ijc.parquet")
     df_e = pd.read_parquet(PROCESSED_DIR / "emplacements/emplacements_final.parquet")[["id", "lon", "lat"]].rename(columns={"id": "id_i"})
+
+    import os
+    import psutil
+
+    def mem(label):
+        process = psutil.Process(os.getpid())
+        print(
+            label,
+            round(process.memory_info().rss / 1024**2),
+            "MB"
+        )
+    mem("début")
+    mem("habitants")
+    mem("resultats")
+    mem("matrice")
 
     # Ajout des coordonnées manquantes
     df_res = df_res.merge(df_e, on="id_i", how="left")
