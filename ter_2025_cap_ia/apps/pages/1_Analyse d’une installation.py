@@ -33,10 +33,10 @@ center_bounds = {"lat_min": 44.82, "lat_max": 44.86, "lon_min": -0.57, "lon_max"
 
 @st.cache_data
 def load_data():
-    df_hab = pd.read_csv(PROCESSED_DIR / "habitants/habitants.csv")
+    df_hab = pd.reda_parquet(PROCESSED_DIR / "habitants/habitants.csv")
     df_res = pd.read_csv(PROCESSED_DIR / "resultats/resultats_glouton.csv")
-    df_a = pd.read_csv(PROCESSED_DIR / "matrices/a_ijc.csv")
-    df_e = pd.read_csv(PROCESSED_DIR / "emplacements/emplacements_final.csv")[["id", "lon", "lat"]].rename(columns={"id": "id_i"})
+    df_a = pd.reda_parquet(PROCESSED_DIR / "matrices/a_ijc.csv")
+    df_e = pd.reda_parquet(PROCESSED_DIR / "emplacements/emplacements_final.csv")[["id", "lon", "lat"]].rename(columns={"id": "id_i"})
 
     # Ajout des coordonnées manquantes
     df_res = df_res.merge(df_e, on="id_i", how="left")

@@ -37,19 +37,19 @@ center_bounds = {
 # === Chargement des données ===
 @st.cache_data
 def load_data():
-    df_h = pd.read_csv(PROCESSED_DIR / "habitants/habitants.csv")
+    df_h = pd.reda_parquet(PROCESSED_DIR / "habitants/habitants.csv")
 
     df_h = df_h[
         (df_h["lat"].between(center_bounds["lat_min"], center_bounds["lat_max"])) &
         (df_h["lon"].between(center_bounds["lon_min"], center_bounds["lon_max"]))
     ]
 
-    df_d = pd.read_csv(PROCESSED_DIR / "matrices/d_ijc.csv")
+    df_d = pd.reda_parquet(PROCESSED_DIR / "matrices/d_ijc.csv")
     df_d = df_d[df_d["id_c"].isin(df_h["id"])]
 
-    df_j = pd.read_csv(PROCESSED_DIR / "matrices/j_options.csv")
+    df_j = pd.reda_parquet(PROCESSED_DIR / "matrices/j_options.csv")
 
-    df_e = pd.read_csv(
+    df_e = pd.reda_parquet(
         PROCESSED_DIR / "emplacements/emplacements_final.csv"
     )[["id", "lon", "lat"]].rename(columns={"id": "id_i"})
 

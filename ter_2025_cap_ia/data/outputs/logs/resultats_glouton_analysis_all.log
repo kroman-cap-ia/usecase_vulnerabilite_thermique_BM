@@ -1,0 +1,29 @@
+📊 Analyse détaillée du fichier de résultats
+==================================================
+
+Nombre total d'installations : 272
+Surface totale aménagée : 16,724,596 m²
+Coût total estimé : 9,198,527,934 €
+Surface moyenne par installation : 61,487.49 m²
+Coût moyen par installation : 33,818,117.40 €
+
+Répartition par catégorie :
+  - moyenne : 128 installations
+  - petite : 77 installations
+  - grande : 67 installations
+
+Répartition par type d'installation :
+  - espace_vert : 272 installations
+
+🏆 Plus grande installation (surface) :
+ id_i    id_j  surface_j      type_j categorie_x    id   surface_m2 categorie_y         prix  score  construit categorie
+59212 59212_0      100.0 espace_vert      grande 59212 5.680122e+06      grande 3.124067e+09  295.0          1    grande
+
+💰 Plus coûteuse installation :
+ id_i    id_j  surface_j      type_j categorie_x    id   surface_m2 categorie_y         prix  score  construit categorie
+59212 59212_0      100.0 espace_vert      grande 59212 5.680122e+06      grande 3.124067e+09  295.0          1    grande
+
+🔥 Meilleur score d'impact :
+ id_i    id_j  surface_j      type_j categorie_x    id  surface_m2 categorie_y         prix  score  construit categorie
+68862 68862_0  85.441611 espace_vert      petite 68862   85.441611      petite 46992.886146 2111.0          1    petite
+
